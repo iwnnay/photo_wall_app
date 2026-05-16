@@ -1,7 +1,5 @@
 import { error, json } from '@sveltejs/kit';
-import { unlink } from 'node:fs/promises';
-import { join } from 'node:path';
-import { IMAGES_DIR, deleteImage } from '$lib/server/db';
+import { removeImageFully } from '$lib/server/files';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -18,14 +16,8 @@ export const POST: RequestHandler = async ({ request }) => {
 
   const deleted: number[] = [];
   for (const id of ids) {
-    const row = deleteImage(id);
-    if (!row) continue;
-    try {
-      await unlink(join(IMAGES_DIR, row.filename));
-    } catch {
-      // file may have been removed already; row is gone, that's fine
-    }
-    deleted.push(id);
+    const row = await removeImageFully(id);
+    if (row) deleted.push(id);
   }
   return json({ deleted });
 };

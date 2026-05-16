@@ -1,28 +1,12 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-
-  type Image = {
-    id: number;
-    filename: string;
-    original_name: string;
-    mime_type: string;
-    size: number;
-    width: number | null;
-    height: number | null;
-    favorite: boolean;
-    created_at: string;
-  };
-
-  const ANIMATIONS = [
-    'fade',
-    'zoom-in',
-    'slide-left',
-    'slide-right',
-    'slide-up',
-    'slide-down',
-    'ken-burns'
-  ] as const;
-  type Animation = (typeof ANIMATIONS)[number];
+  import type { Image } from '$lib/types';
+  import {
+    type Animation,
+    buildOrderKeepingCurrent,
+    pickAnimation,
+    step as stepPure
+  } from '$lib/slideshow';
 
   const SLIDE_INTERVAL_MS = 6000;
   const REFRESH_LIST_MS = 60_000;
@@ -41,65 +25,31 @@
   let refreshTimer: ReturnType<typeof setTimeout> | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  function shuffle<T>(arr: T[]): T[] {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function pickAnimation(): Animation {
-    return ANIMATIONS[Math.floor(Math.random() * ANIMATIONS.length)];
-  }
-
   async function loadImageList() {
     try {
       const res = await fetch('/api/images?page=1&pageSize=10000');
       if (!res.ok) throw new Error('Failed to load images');
       const data = (await res.json()) as { images: Image[] };
       images = data.images;
-      // Build a fresh shuffle while keeping the current image in front so we
-      // don't yank what's on screen.
-      const remaining = images.filter((i) => i.id !== current?.id);
-      const next = shuffle(remaining).map((i) => i.id);
-      const front = current ? [current.id] : [];
-      order = [...front, ...next];
-      cursor = current ? 0 : -1;
+      const built = buildOrderKeepingCurrent(images, current);
+      order = built.order;
+      cursor = built.cursor;
     } finally {
       loading = false;
     }
   }
 
   function step(direction: 1 | -1) {
-    if (images.length === 0) {
+    const r = stepPure({ images, order, cursor, direction });
+    if (r.kind === 'empty') {
       current = null;
       return;
     }
-    cursor += direction;
-    if (cursor >= order.length) {
-      order = shuffle(images.map((i) => i.id));
-      cursor = 0;
-    } else if (cursor < 0) {
-      order = shuffle(images.map((i) => i.id));
-      cursor = order.length - 1;
-    }
-    const id = order[cursor];
-    const found = images.find((i) => i.id === id);
-    if (!found) {
-      images = images.filter((i) => i.id !== id);
-      order = order.filter((x) => x !== id);
-      if (cursor >= order.length) cursor = order.length - 1;
-      if (!order.length) {
-        current = null;
-        return;
-      }
-      step(direction);
-      return;
-    }
+    images = r.images;
+    order = r.order;
+    cursor = r.cursor;
     animation = direction === 1 ? pickAnimation() : 'slide-right';
-    current = found;
+    current = r.current;
   }
 
   function advance() {

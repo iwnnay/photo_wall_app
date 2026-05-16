@@ -2,17 +2,10 @@
   import Button from '$lib/components/Button.svelte';
   import Card from '$lib/components/Card.svelte';
   import Alert from '$lib/components/Alert.svelte';
+  import { formatBytes } from '$lib/format';
+  import type { Image } from '$lib/types';
 
-  type ImageRow = {
-    id: number;
-    filename: string;
-    original_name: string;
-    mime_type: string;
-    size: number;
-    favorite: boolean;
-    created_at: string;
-  };
-
+  type ImageRow = Image;
   type Skipped = { name: string; reason: string };
 
   let dragOver = $state(false);
@@ -20,12 +13,6 @@
   let session = $state<ImageRow[]>([]);
   let errors = $state<Skipped[]>([]);
   let fileInput: HTMLInputElement | null = $state(null);
-
-  function bytes(n: number) {
-    if (n < 1024) return `${n} B`;
-    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-    return `${(n / 1024 / 1024).toFixed(2)} MB`;
-  }
 
   async function upload(files: FileList | File[]) {
     const arr = Array.from(files).filter((f) => f.type.startsWith('image/'));
@@ -180,7 +167,7 @@
             href={`/api/images/${img.id}/file`}
             target="_blank"
             rel="noreferrer"
-            title={`${img.original_name} · ${bytes(img.size)}`}
+            title={`${img.original_name} · ${formatBytes(img.size)}`}
           >
             <img src={`/api/images/${img.id}/file`} alt={img.original_name} loading="lazy" />
           </a>

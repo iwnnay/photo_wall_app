@@ -2,6 +2,7 @@
   import { invalidateAll, goto } from '$app/navigation';
   import { page } from '$app/state';
   import Button from '$lib/components/Button.svelte';
+  import { formatBytes } from '$lib/format';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -64,11 +65,6 @@
     goto(url, { keepFocus: true, noScroll: false });
   }
 
-  function bytes(n: number) {
-    if (n < 1024) return `${n} B`;
-    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-    return `${(n / 1024 / 1024).toFixed(2)} MB`;
-  }
 </script>
 
 <svelte:head>
@@ -163,7 +159,7 @@
           {/if}
           <div class="meta">
             <span class="name" title={img.original_name}>{img.original_name}</span>
-            <span class="size">{bytes(img.size)}</span>
+            <span class="size">{formatBytes(img.size)}</span>
           </div>
           {#if !multiselect}
             <button class="del" title="Delete" aria-label="Delete photo"
