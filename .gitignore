@@ -8,6 +8,9 @@ build
 dist
 package-lock.json.bak
 
+# Local data
+data/
+
 # IDE
 .vscode
 .idea
