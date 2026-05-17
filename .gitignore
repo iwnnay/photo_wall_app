@@ -9,7 +9,7 @@ dist
 package-lock.json.bak
 
 # Local data
-data/
+storage/
 
 # IDE
 .vscode

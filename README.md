@@ -9,7 +9,7 @@ paginated gallery.
 - **Drag-and-drop upload** of JPEG / PNG / GIF / WebP / AVIF / BMP / TIFF
   (100 MB per file).
 - **Paginated gallery** with single and bulk delete.
-- **SQLite** for metadata, raw originals on disk under `data/images/`.
+- **SQLite** for metadata, raw originals on disk under `storage/images/`.
 - **Themable** light / dark (`$lib/theme.svelte.ts`).
 - **Port 6300** for both `dev` and `preview`.
 
@@ -36,9 +36,9 @@ npm run format       # prettier
 
 | Env var          | Default                       | Effect                                  |
 | ---------------- | ----------------------------- | --------------------------------------- |
-| `PHOTO_WALL_DB`  | `./data/photo_wall.sqlite`    | Path to the SQLite database file.       |
+| `PHOTO_WALL_DB`  | `./storage/photo_wall.sqlite` | Path to the SQLite database file.       |
 
-Image files always live under `./data/images/`. Both directories are created
+Image files always live under `./storage/images/`. Both directories are created
 on first boot.
 
 ## Project layout

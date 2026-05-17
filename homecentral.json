@@ -1,10 +1,6 @@
 {
   "version": 1,
-  "name": "photo_wall",
-  "description": "Small app for displaying photos",
-  "testCmd": "npm run check",
-  "buildCmd": "npm ci && npm run build",
-  "runCmd": "/usr/bin/node build/index.js",
+  "kind": "node",
   "icon": "static/favicon.svg",
   "showOnHome": true
 }

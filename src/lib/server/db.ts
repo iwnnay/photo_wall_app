@@ -2,9 +2,9 @@ import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-export const DATA_DIR = resolve(process.cwd(), 'data');
-export const IMAGES_DIR = join(DATA_DIR, 'images');
-const DEFAULT_DB_PATH = join(DATA_DIR, 'photo_wall.sqlite');
+export const STORAGE_DIR = resolve(process.cwd(), 'storage');
+export const IMAGES_DIR = join(STORAGE_DIR, 'images');
+const DEFAULT_DB_PATH = join(STORAGE_DIR, 'photo_wall.sqlite');
 
 export type ImageRow = {
   id: number;
