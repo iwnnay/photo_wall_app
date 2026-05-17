@@ -23,8 +23,12 @@ export const POST: RequestHandler = async ({ request }) => {
   let form: FormData;
   try {
     form = await request.formData();
-  } catch {
-    throw error(400, 'Expected multipart/form-data');
+  } catch (e) {
+    const msg = (e as Error)?.message ?? '';
+    if (/body size|413|Payload Too Large/i.test(msg)) {
+      throw error(413, 'Upload exceeds server body size limit (set BODY_SIZE_LIMIT)');
+    }
+    throw error(400, `Could not parse upload: ${msg || 'Expected multipart/form-data'}`);
   }
   const files = form.getAll('files').filter((v): v is File => v instanceof File);
   if (!files.length) throw error(400, 'No files in upload');
